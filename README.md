@@ -1,7 +1,25 @@
 
 # Scheduled Scaling of RDS
 
+Currently, AWS doesn't provide any autoscaling capability for RDS instances except for RDS Aurora. But Scheduled scaling can be implemented for RDS using Amazon EventBridge and AWS Lambda. This solutions have two stacks one for vertical scaling and other for horizontal scaling and these can be deployed independently. 
+
+### Vertical Scaling 
+Scheduled vertical scaling changes the RDS instance type, provisioned iops, storage etc. 
+
+### Horizontal Scaling 
+Scheduled horizontal scaling adds or removes the read replicas associated with RDS instances.
+
+## Architecture
 ![Architecture Diagram](architecture/rds-scheduled-scaling.png)
+
+### How It Works
+Each of these stacks creates two separate Amazon EventBridge rules. One triggers lambda to scale-up the resources and other triggers lambda to scale it down.
+
+1. A scheduled EventBridge rule triggers lambda.
+2. Lambda then scans each RDS instances one by one and checks for the tag `SCHEDULED_SCALING`:`ENABLED`. If this tag is found then lambda looks for tags `SCALE_DOWN_INSTANCE_CLASS`,`SCALE_UP_INSTANCE_CLASS` for vertical-scaling and `SCALE_IN_REPLICA_COUNT`,`SCALE_OUT_REPLICA_COUNT` for horizontal-scaling.
+3. Lambda then make API calls to modify instances, create or delete read replica depending on EventBridge rule triggered and type of scaling happening.
+   ![Scaling Tags](architecture/rds-scaling-tags.png)   
+
 
 This is a blank project for Python development with CDK.
 
