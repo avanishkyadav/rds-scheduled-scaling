@@ -1,5 +1,7 @@
 
-# Welcome to your CDK Python project!
+# Scheduled Scaling of RDS
+
+![Architecture Diagram](architecture/rds-scheduled-scaling.png)
 
 This is a blank project for Python development with CDK.
 
