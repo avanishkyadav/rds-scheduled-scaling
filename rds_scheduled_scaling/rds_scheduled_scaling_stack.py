@@ -22,16 +22,16 @@ class RdsScheduledScalingStack(core.Stack):
         enable_sns = core.CfnParameter(
             self, "Enable-Notification",
             type="String",
-            allowed_values=["Yes","No"],
-            default="No",
-            description='Select "Yes" if you want to be notified about scaling events.'
+            allowed_values=["yes","no"],
+            default="no",
+            description='Select "yes" if you want to be notified about scaling events.'
         )
         
         sns_arn = core.CfnParameter(
             self, "Notification-Topic-Arn",
             type="String",
-            default="<SNS-Topic-Arn>",
-            description='If selected "Yes". Topic arn to which notification will be sent.'
+            default="<sns-topic-arn>",
+            description='If selected "yes". Topic arn to which notification will be sent.'
         )
         
         scale_down_time = core.CfnParameter(
