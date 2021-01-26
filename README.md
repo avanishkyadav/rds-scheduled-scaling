@@ -90,8 +90,8 @@ To install using cloudformation template
 
 1. Upload file "rds-scheduled-scaling.zip" to a bucket. Tow download file click [here](https://automation-assets-avaya.s3.ap-south-1.amazonaws.com/lambda-archives/rds-scheduled-scaling.zip).
 2. Create CloudFormation stack.
-    - To create horizontal scaling stack, click  [here](https://automation-assets-avaya.s3.ap-south-1.amazonaws.com/cftemplates/rds-scheduled-horizontal-scaling.template.json).
-    - To create vertical scaling stack, click [here](https://automation-assets-avaya.s3.ap-south-1.amazonaws.com/cftemplates/rds-scheduled-vertical-scaling.template.json).
+    - To create horizontal scaling stack, click  [here](https://console.aws.amazon.com/cloudformation/home?#/stacks/new?stackName=rds-scheduled-horizontal-scaling&templateURL=https://automation-assets-avaya.s3.ap-south-1.amazonaws.com/cftemplates/rds-scheduled-horizontal-scaling.template.json).
+    - To create vertical scaling stack, click [here](https://console.aws.amazon.com/cloudformation/home?#/stacks/new?stackName=rds-scheduled-vertical-scaling&templateURL=https://automation-assets-avaya.s3.ap-south-1.amazonaws.com/cftemplates/rds-scheduled-vertical-scaling.template.json).
 3. Fill out parameters value. List of [parameters](#stack-parameters) for each stacks.
 
 ## Resources
