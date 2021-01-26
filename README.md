@@ -88,7 +88,7 @@ To install using cdk stack
 ### CloudFormation Template 
 To install using cloudformation template
 
-1. Upload file "rds-scheduled-scaling.zip" to a bucket. Tow download file click [here](https://automation-assets-avaya.s3.ap-south-1.amazonaws.com/lambda-archives/rds-scheduled-scaling.zip).
+1. Upload file `rds-scheduled-scaling.zip` to a bucket. Tow download file click [here](https://automation-assets-avaya.s3.ap-south-1.amazonaws.com/lambda-archives/rds-scheduled-scaling.zip).
 2. Create CloudFormation stack.
     - To create horizontal scaling stack, click  [here](https://console.aws.amazon.com/cloudformation/home?#/stacks/new?stackName=rds-scheduled-horizontal-scaling&templateURL=https://automation-assets-avaya.s3.ap-south-1.amazonaws.com/cftemplates/rds-scheduled-horizontal-scaling.template.json).
     - To create vertical scaling stack, click [here](https://console.aws.amazon.com/cloudformation/home?#/stacks/new?stackName=rds-scheduled-vertical-scaling&templateURL=https://automation-assets-avaya.s3.ap-south-1.amazonaws.com/cftemplates/rds-scheduled-vertical-scaling.template.json).
@@ -106,14 +106,14 @@ Following table contains list of the primary resources created.
 | rds-scheduled-scale-down-rule | EventBridge Rule | This rule triggers `rds-scheduled-vertical-scaling-function` to downgrade RDS instance class. |
 
 ##  RDS Configuration
-To implement scaling on scaling on an RDS create following tags.
+To implement scheduled scaling on an RDS create following tags.
 | Tag Key | Tag Value | Description |
 | ----------- | ----------- | ----------- |
 | SCHEDULED_SCALING |	ENABLED | Through this tag lambda identifies whether scheduled scaling is enabled on a databse or not|
-| SCALE_UP_INSTANCE_CLASS | db.t3.xlarge, db.m5.medium etc | RDS instance class to which database or replica needs to scale up to when rule `rds-scheduled-scale-up-rule` triggers lambda `rds-scheduled-vertical-scaling-function`. |
-| SCALE_DOWN_INSTANCE_CLASS | db.t3.large, db.m5.micro etc | RDS instance class to which database or replica needs to scale down to when rule `rds-scheduled-scale-down-rule` triggers lambda `rds-scheduled-vertical-scaling-function`.|
-| SCALE_OUT_REPLICA_COUNT | 0-5 | Number of read replica that RDS instance have after horizontal scale out operation is finished. |
-| SCALE_IN_REPLICA_COUNT | 0-5 | Number of read replica that RDS instance have after horizontal scale in operation is finished. |
+| SCALE_UP_INSTANCE_CLASS | `db.t3.xlarge`, `db.m5.medium` etc | RDS instance class to which database or replica needs to scale up to when rule `rds-scheduled-scale-up-rule` triggers lambda `rds-scheduled-vertical-scaling-function`. |
+| SCALE_DOWN_INSTANCE_CLASS | `db.t3.large`, `db.m5.micro` etc | RDS instance class to which database or replica needs to scale down to when rule `rds-scheduled-scale-down-rule` triggers lambda `rds-scheduled-vertical-scaling-function`.|
+| SCALE_OUT_REPLICA_COUNT | `0-5` | Number of read replica that RDS instance have after horizontal scale out operation is finished. |
+| SCALE_IN_REPLICA_COUNT | `0-5` | Number of read replica that RDS instance have after horizontal scale in operation is finished. |
 
 ## Stack Parameters
 Prameters required for stack creation.
