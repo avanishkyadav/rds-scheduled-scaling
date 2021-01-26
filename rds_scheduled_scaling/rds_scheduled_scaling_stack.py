@@ -19,19 +19,6 @@ class RdsScheduledScalingStack(core.Stack):
             up='out'
             down='in'
         
-        lambda_code_bucket = core.CfnParameter(
-            self, "Bucket-Name",
-            type="String",
-            description="(Required) Bucket name where lambda file <rds-scheduled-" + scaling_type + "-scaling.zip> is stored."
-        )
-        
-        rds_scheduled_scaling_lambda_key = core.CfnParameter(
-            self, "Scheduled-" + scaling_type.capitalize() + "-Scaling-Lambda-Key-Name",
-            type="String",
-            default="rds-scheduled-" + scaling_type + "-scaling.zip",
-            description="(Optional) Key name for lambda <rds-scheduled-" + scaling_type + "-scaling.zip>."
-        )
-        
         enable_sns = core.CfnParameter(
             self, "Enable-Notification",
             type="String",
@@ -43,19 +30,20 @@ class RdsScheduledScalingStack(core.Stack):
         sns_arn = core.CfnParameter(
             self, "Notification-Topic-Arn",
             type="String",
+            default="<SNS-Topic-Arn>",
             description='If selected "Yes". Topic arn to which notification will be sent.'
         )
         
         scale_down_time = core.CfnParameter(
             self, "Scale-" +down.capitalize()+ "-Time",
             type="String",
-            description='Time at which scale-'+ down +'('+scaling_type+') will take place in the format "minute hour" (without quotes). Use UTC timezone (IST - 5:30). e.g, "0 14" equals to "2:00PM" in UTC and "17:30PM" in IST.'
+            description='(Required) Time at which scale-'+ down +'('+scaling_type+') will take place in the format "minute hour" (without quotes). Use UTC timezone (IST - 5:30). e.g, "0 14" equals to "2:00PM" in UTC and "17:30PM" in IST.'
         )
         
         scale_up_time = core.CfnParameter(
             self, "Scale-" +up.capitalize()+ "-Time",
             type="String",
-            description='Time at which scale-'+ up +'('+scaling_type+') will take place in the format "minute hour" (without quotes). Use UTC timezone (IST - 5:30). e.g, "0 14" equals to "2:00PM" in UTC and "17:30PM" in IST.'
+            description='(Required) Time at which scale-'+ up +'('+scaling_type+') will take place in the format "minute hour" (without quotes). Use UTC timezone (IST - 5:30). e.g, "0 14" equals to "2:00PM" in UTC and "17:30PM" in IST.'
         )
         
         cron_expression_scale_up = core.StringConcat().join('cron(',core.StringConcat().join(scale_up_time.value_as_string,' * * ? *)'))
@@ -79,7 +67,7 @@ class RdsScheduledScalingStack(core.Stack):
                     sid="snsPublishNotification",
                     actions=["sns:Publish"],
                     effect=iam.Effect.ALLOW,
-                    resources=[sns_arn.value_as_string]    
+                    resources=["*"]    
                 )
             ]
         )
@@ -100,7 +88,8 @@ class RdsScheduledScalingStack(core.Stack):
                     sid="rdscreateAndDeleteReplica",
                     actions=["rds:DeleteDBInstance","rds:CreateDBInstanceReadReplica"],
                     effect=iam.Effect.ALLOW,
-                    resources=["*"]
+                    resources=["*"],
+                    conditions={"StringEquals": {"aws:ResourceTag/SCHEDULED_SCALING": "ENABLED"}}
                 )
             )
         
@@ -108,7 +97,7 @@ class RdsScheduledScalingStack(core.Stack):
             self, "RDSScheduled" + scaling_type.capitalize() + "ScalingFunction",
             handler="rds-scheduled-" + scaling_type + "-scaling.lambda_handler",
             function_name="rds-scheduled-" + scaling_type + "-scaling-function",
-            code=_lambda.Code.from_cfn_parameters(bucket_name_param=lambda_code_bucket, object_key_param=rds_scheduled_scaling_lambda_key),
+            code=_lambda.Code.from_asset(path='lambda/'),
             runtime=_lambda.Runtime.PYTHON_3_7,
             timeout=core.Duration.seconds(900),
             memory_size=128,
