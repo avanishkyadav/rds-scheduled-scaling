@@ -41,31 +41,31 @@ To install using cdk stack
     $ git clone https://github.com/avanishkyadav/rds-scheduled-scaling.git
     ```
    
-2.    Install cdk if you don’t have it already installed.
+2.  Install cdk if you don’t have it already installed.
     
     ```
     $ npm install -g aws-cdk
     ```
 
-3.    If this is first time you are using cdk then, run cdk bootstrap.
+3.  If this is first time you are using cdk then, run cdk bootstrap.
     
     ```
     $ cdk bootstrap
     ```
 
-4.    Make sure you in root directory.
+4.  Make sure you in root directory.
     
     ```
     $ cd rds-scheduled-scaling
     ```
    
-5.    Activate virtual environment.
+5.  Activate virtual environment.
     
     ```
     $ source .venv/bin/activate
     ```
 
-6.    Install any dependencies.
+6.  Install any dependencies.
     
     ```
     $ pip install -r requirements.txt
@@ -77,7 +77,7 @@ To install using cdk stack
     $ cdk ls
     ```
 
-8. Synthesize cloudformation templates. The templates will be generated in `cdk.out/` directory.
+8.  Synthesize cloudformation templates. The templates will be generated in `cdk.out/` directory.
 
     ```
     # To create vertical-scaling cloudformation template
@@ -87,7 +87,7 @@ To install using cdk stack
     $ cdk synth rds-scheduled-horizontal-scaling
     ```
 
-9.    Deploying the stacks to create resources. List of [parameters](#stack-parameters) for each stacks.
+9.  Deploying the stacks to create resources. List of [parameters](#stack-parameters) for each stacks.
     
     ```
     $ cdk deploy <stack-name> --parameters "<stack-name>:<parameter-name>=<parameter-value>"
@@ -102,6 +102,17 @@ To install using cloudformation template
     - To create horizontal scaling stack, click  [here](https://automation-assets-avaya.s3.ap-south-1.amazonaws.com/cftemplates/rds-scheduled-horizontal-scaling.template.json).
     - To create vertical scaling stack, click [here](https://automation-assets-avaya.s3.ap-south-1.amazonaws.com/cftemplates/rds-scheduled-vertical-scaling.template.json).
 3. Fill out parameters value. List of [parameters](#stack-parameters) for each stacks.
+
+## Resources
+Following table contains list of the primary resources created.
+| Name | Type | Description |
+| ----------- | ----------- | ----------- |
+| rds-scheduled-horizontal-scaling-function | Lambda Function | This function performs the horizontal scaling by adding and removing read replicas. |
+| rds-scheduled-vertical-scaling-function | Lambda Function | This function performs the vertical scaling by changing RDS instances class. |
+| rds-scheduled-scale-out-rule | EventBridge Rule | This rule triggers `rds-scheduled-horizontal-scaling-function` to add read replicas. |
+| rds-scheduled-scale-in-rule | EventBridge Rule | This rule triggers `rds-scheduled-horizontal-scaling-function` to remove read replicas. |
+| rds-scheduled-scale-up-rule | EventBridge Rule | This rule triggers `rds-scheduled-vertical-scaling-function` to upgrade RDS instance class. |
+| rds-scheduled-scale-down-rule | EventBridge Rule | This rule triggers `rds-scheduled-vertical-scaling-function` to downgrade RDS instance class. |
 
 ## Stack Parameters
 Prameters required for stack creation.
