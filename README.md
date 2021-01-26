@@ -20,15 +20,6 @@ Each of these stacks creates two separate Amazon EventBridge rules. One triggers
 3. Lambda then make API calls to modify instances, create or delete read replica depending on which EventBridge rule is triggered and type of scaling happening.
 4. SNS notification is sent containing the summary of scaling operation.
 
-| Tag Key | Tag Value |
-| ----------- | ----------- |
-| SCHEDULED_SCALING |	ENABLED |
-| SCALE_UP_INSTANCE_CLASS | db.t3.xlarge |
-| SCALE_DOWN_INSTANCE_CLASS | db.t3.large |
-| SCALE_OUT_REPLICA_COUNT | 3 |
-| SCALE_IN_REPLICA_COUNT | 1 |
-
-
 ## Installation
 This solution can be build either by deploying cdk stack from your environment or by using cloudformation template already synthesized.
 
@@ -114,14 +105,24 @@ Following table contains list of the primary resources created.
 | rds-scheduled-scale-up-rule | EventBridge Rule | This rule triggers `rds-scheduled-vertical-scaling-function` to upgrade RDS instance class. |
 | rds-scheduled-scale-down-rule | EventBridge Rule | This rule triggers `rds-scheduled-vertical-scaling-function` to downgrade RDS instance class. |
 
+##  RDS Configuration
+To implement scaling on scaling on an RDS create following tags.
+| Tag Key | Tag Value | Description |
+| ----------- | ----------- |
+| SCHEDULED_SCALING |	ENABLED | Through this tag lambda identifies whether scheduled scaling is enabled on a databse or not|
+| SCALE_UP_INSTANCE_CLASS | db.t3.xlarge, db.m5.medium etc | RDS instance class to which database or replica needs to scale up to when rule `rds-scheduled-scale-up-rule` triggers lambda `rds-scheduled-vertical-scaling-function`. |
+| SCALE_DOWN_INSTANCE_CLASS | db.t3.large, db.m5.micro etc | RDS instance class to which database or replica needs to scale down to when rule `rds-scheduled-scale-down-rule` triggers lambda `rds-scheduled-vertical-scaling-function`.|
+| SCALE_OUT_REPLICA_COUNT | 0-5 | Number of read replica that RDS instance have after horizontal scale out operation is finished. |
+| SCALE_IN_REPLICA_COUNT | 0-5 | Number of read replica that RDS instance have after horizontal scale in operation is finished. |
+
 ## Stack Parameters
 Prameters required for stack creation.
 | Parameter Name | Description | Default | Remarks |
 | ----------- | ----------- | ----------- | ----------- |
-| BucketName |	Bucket where "rds-scheduled-scaling.zip" file is uploaded.  |  | Applicable only if installing with CDK. |
-| KeyName | S3 Key name of the file "rds-scheduled-scaling.zip". | rds-scheduled-scaling.zip | Applicable only if installing with CDK. |
+| BucketName |	Bucket where `rds-scheduled-scaling.zip` file is uploaded.  |  | Applicable only if installing with CDK. |
+| KeyName | S3 Key name of the file `rds-scheduled-scaling.zip`. | rds-scheduled-scaling.zip | Applicable only if installing with CDK. |
 | EnableNotification | Publish scaling summary to NotificationTopicArn. [yes, no] | no |  |
-| NotificationTopicArn | SNS topic arn to which notification will be published. | <sns-topic-arn> |  |
+| NotificationTopicArn | SNS topic arn to which notification will be published. | [sns-topic-arn] |  |
 | ScaleInTime | Time at which scale-in of read replicas will take place. |  | Applicable for rds-scheduled-horizontal-scaling |
 | ScaleOutTime | Time at which scale-out of read replicas will take place. |  | Applicable for rds-scheduled-horizontal-scaling |
 | ScaleDownTime | Time at which rds instance scales-down. |  | Applicable for rds-scheduled-vertical-scaling |
@@ -132,6 +133,3 @@ Prameters required for stack creation.
 - Scale time parameters like `ScaleInTime`, `ScaleOutTime` etc should be in UTC timezone in the format `minute hour` and there should be no leading zero in `minute` or `hour` e.g. `14:05 UTC` will be filled out as `5 14`.
 - This solution is not made to work on RDS Aurora.
 - Whenever either horizontal or vertical scaling is triggered, the database enters `modifying` state and it takes around 15 minutes before it comes back to `available` state. During this period no further modification can be made to database. It is recommended  that if you are creating both rds-scheduled-horizontal-scaling and rds-scheduled-vertical-scaling stack then there should be atleast 15 minutes gap between `ScaleUpTime` and `ScaleOutTime` otherwise if both scaling are triggered at same one of them will make the changes to database sending it to `modifying` state and other scaling will skip over it because it is not in `available` state.
-
-
-
