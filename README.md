@@ -119,8 +119,8 @@ To implement scaling on scaling on an RDS create following tags.
 Prameters required for stack creation.
 | Parameter Name | Description | Default | Remarks |
 | ----------- | ----------- | ----------- | ----------- |
-| BucketName |	Bucket where `rds-scheduled-scaling.zip` file is uploaded.  |  | Applicable only if installing with CDK. |
-| KeyName | S3 Key name of the file `rds-scheduled-scaling.zip`. | rds-scheduled-scaling.zip | Applicable only if installing with CDK. |
+| BucketName |	Bucket where `rds-scheduled-scaling.zip` file is uploaded.  |  | Applicable only if installing with CloudFormation Template. |
+| KeyName | S3 Key name of the file `rds-scheduled-scaling.zip`. | rds-scheduled-scaling.zip | Applicable only if installing with CloudFormation Template. |
 | EnableNotification | Publish scaling summary to NotificationTopicArn. [yes, no] | no |  |
 | NotificationTopicArn | SNS topic arn to which notification will be published. | [sns-topic-arn] |  |
 | ScaleInTime | Time at which scale-in of read replicas will take place. |  | Applicable for rds-scheduled-horizontal-scaling |
