@@ -17,62 +17,62 @@ Each of these stacks creates two separate Amazon EventBridge rules. One triggers
 
 1. A scheduled EventBridge rule triggers lambda.
 2. Lambda then scans each RDS instances one by one and checks for the tag `SCHEDULED_SCALING`:`ENABLED`. If this tag is found then lambda looks for tags `SCALE_DOWN_INSTANCE_CLASS`,`SCALE_UP_INSTANCE_CLASS` for vertical-scaling and `SCALE_IN_REPLICA_COUNT`,`SCALE_OUT_REPLICA_COUNT` for horizontal-scaling.
-3. Lambda then make API calls to modify instances, create or delete read replica depending on EventBridge rule triggered and type of scaling happening.
-   ![Scaling Tags](architecture/rds-scaling-tags.png)   
+3. Lambda then make API calls to modify instances, create or delete read replica depending on which EventBridge rule is triggered and type of scaling happening.
+4. SNS notification is sent containing the summary of scaling operation.
+
+| Tag Key | Tag Value |
+| ----------- | ----------- |
+| SCHEDULED_SCALING |	ENABLED |
+| SCALE_UP_INSTANCE_CLASS | db.t3.xlarge |
+| SCALE_DOWN_INSTANCE_CLASS | db.t3.large |
+| SCALE_OUT_REPLICA_COUNT | 3 |
+| SCALE_IN_REPLICA_COUNT | 1 |
 
 
-This is a blank project for Python development with CDK.
+## Installation
+This solution can be build either by deploying cdk stack from your environment or by using cloudformation stack already synthesized.
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+### CDK Stack
+To build the solution using cdk stack
 
-This project is set up like a standard Python project.  The initialization
-process also creates a virtualenv within this project, stored under the `.venv`
-directory.  To create the virtualenv it assumes that there is a `python3`
-(or `python` for Windows) executable in your path with access to the `venv`
-package. If for any reason the automatic creation of the virtualenv fails,
-you can create the virtualenv manually.
-
-To manually create a virtualenv on MacOS and Linux:
+Clone this repository to your local machine
 
 ```
-$ python3 -m venv .venv
+$ git clone https://github.com/avanishkyadav/rds-scheduled-scaling.git
+```
+   
+Install cdk if you don’t have it already installed
+
+```
+$ npm install -g aws-cdk
 ```
 
-After the init process completes and the virtualenv is created, you can use the following
-step to activate your virtualenv.
+If this is first time you are using cdk then, run cdk bootstrap
+
+```
+$ cdk bootstrap
+```
+
+Make sure you in root directory
+
+```
+$ cd rds-scheduled-scaling
+```
+   
+Activate virtual environment
 
 ```
 $ source .venv/bin/activate
 ```
 
-If you are a Windows platform, you would activate the virtualenv like this:
-
-```
-% .venv\Scripts\activate.bat
-```
-
-Once the virtualenv is activated, you can install the required dependencies.
+Install any dependencies
 
 ```
 $ pip install -r requirements.txt
 ```
 
-At this point you can now synthesize the CloudFormation template for this code.
+List stacks. This will list out the stacks present in the project. In this case the stacks will be `rds-scheduled-horizontal-scaling` and `rds-scheduled-vertical-scaling`.
 
 ```
-$ cdk synth
+$ cdk ls
 ```
-
-To add additional dependencies, for example other CDK libraries, just add
-them to your `setup.py` file and rerun the `pip install -r requirements.txt`
-command.
-
-## Useful commands
-
- * `cdk ls`          list all stacks in the app
- * `cdk synth`       emits the synthesized CloudFormation template
- * `cdk deploy`      deploy this stack to your default AWS account/region
- * `cdk diff`        compare deployed stack with current state
- * `cdk docs`        open CDK documentation
-
-Enjoy!

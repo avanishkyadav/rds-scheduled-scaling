@@ -134,10 +134,15 @@ def lambda_handler(event, context):
    print("Scaling operation completed!")
          
    if sns_enabled=='yes':
-      sns.publish(
-         TopicArn=sns_arn,
-         Message= sns_notification_message
-      )
+      try:
+         sns.publish(
+            TopicArn=sns_arn,
+             Message= sns_notification_message
+         )
+         print("Notification sent")
+      except botocore.exceptions.ClientError as e:
+         print("Failed to sent notification")
+         print('ERROR OCCURED :: ' + e.response['Error']['Message'])
          
 def class_validity(_class):
    if _class == None:
