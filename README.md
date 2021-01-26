@@ -108,7 +108,7 @@ Following table contains list of the primary resources created.
 ##  RDS Configuration
 To implement scaling on scaling on an RDS create following tags.
 | Tag Key | Tag Value | Description |
-| ----------- | ----------- |
+| ----------- | ----------- | ----------- |
 | SCHEDULED_SCALING |	ENABLED | Through this tag lambda identifies whether scheduled scaling is enabled on a databse or not|
 | SCALE_UP_INSTANCE_CLASS | db.t3.xlarge, db.m5.medium etc | RDS instance class to which database or replica needs to scale up to when rule `rds-scheduled-scale-up-rule` triggers lambda `rds-scheduled-vertical-scaling-function`. |
 | SCALE_DOWN_INSTANCE_CLASS | db.t3.large, db.m5.micro etc | RDS instance class to which database or replica needs to scale down to when rule `rds-scheduled-scale-down-rule` triggers lambda `rds-scheduled-vertical-scaling-function`.|
