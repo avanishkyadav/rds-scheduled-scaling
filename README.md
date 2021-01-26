@@ -30,79 +30,97 @@ Each of these stacks creates two separate Amazon EventBridge rules. One triggers
 
 
 ## Installation
-This solution can be build either by deploying cdk stack from your environment or by using cloudformation stack already synthesized.
+This solution can be build either by deploying cdk stack from your environment or by using cloudformation template already synthesized.
 
 ### CDK Stack
-To build the solution using cdk stack
+To install using cdk stack
 
-Clone this repository to your local machine.
+1. Clone this repository to your local machine.
 
-```
-$ git clone https://github.com/avanishkyadav/rds-scheduled-scaling.git
-```
+    ```
+    $ git clone https://github.com/avanishkyadav/rds-scheduled-scaling.git
+    ```
    
-Install cdk if you don’t have it already installed.
+2.    Install cdk if you don’t have it already installed.
+    
+    ```
+    $ npm install -g aws-cdk
+    ```
 
-```
-$ npm install -g aws-cdk
-```
+3.    If this is first time you are using cdk then, run cdk bootstrap.
+    
+    ```
+    $ cdk bootstrap
+    ```
 
-If this is first time you are using cdk then, run cdk bootstrap.
-
-```
-$ cdk bootstrap
-```
-
-Make sure you in root directory.
-
-```
-$ cd rds-scheduled-scaling
-```
+4.    Make sure you in root directory.
+    
+    ```
+    $ cd rds-scheduled-scaling
+    ```
    
-Activate virtual environment.
+5.    Activate virtual environment.
+    
+    ```
+    $ source .venv/bin/activate
+    ```
 
-```
-$ source .venv/bin/activate
-```
+6.    Install any dependencies.
+    
+    ```
+    $ pip install -r requirements.txt
+    ```
 
-Install any dependencies.
+7.  List stacks. This will list out the stacks present in the project. In this case the stacks will be `rds-scheduled-horizontal-scaling` and `rds-scheduled-vertical-scaling`.
+    
+    ```
+    $ cdk ls
+    ```
 
-```
-$ pip install -r requirements.txt
-```
+8. Synthesize cloudformation templates. The templates will be generated in `cdk.out/` directory.
 
-List stacks. This will list out the stacks present in the project. In this case the stacks will be `rds-scheduled-horizontal-scaling` and `rds-scheduled-vertical-scaling`.
+    ```
+    # To create vertical-scaling cloudformation template
+    $ cdk synth rds-scheduled-vertical-scaling
+    
+    # To create horizontal-scaling cloudformation template
+    $ cdk synth rds-scheduled-horizontal-scaling
+    ```
 
-```
-$ cdk ls
-```
+9.    Deploying the stacks to create resources. List of [parameters](#stack-parameters) for each stacks.
+    
+    ```
+    $ cdk deploy <stack-name> --parameters "<stack-name>:<parameter-name>=<parameter-value>"
+    # e.g, cdk deploy rds-scheduled-horizontal-scaling --parameters "rds-scheduled-horizontal-scaling:ScaleOutTime=20 14" --parameters "rds-scheduled-horizontal-scaling:ScaleInTime=20 14"
+    ```
 
-Synthesize cloudformation templates. The templates will be generated in `cdk.out/` directory.
+### CloudFormation Template 
+To install using cloudformation template
 
-```
-# To create vertical-scaling cloudformation template
-$ cdk synth rds-scheduled-vertical-scaling
-
-# To create horizontal-scaling cloudformation template
-$ cdk synth rds-scheduled-horizontal-scaling
-```
-
-Deploying the stacks to create resources. List of [parameters](##stack-parameters) for each stacks.
-
-```
-$ cdk deploy <stack-name> --parameters "<stack-name>:<parameter-name>=<parameter-value>"
-# e.g, cdk deploy rds-scheduled-horizontal-scaling --parameters "rds-scheduled-horizontal-scaling:ScaleOutTime=20 14" --parameters "rds-scheduled-horizontal-scaling:ScaleInTime=20 14"
-```
+1. Upload file "rds-scheduled-scaling.zip" to a bucket. Tow download file click [here](https://automation-assets-avaya.s3.ap-south-1.amazonaws.com/lambda-archives/rds-scheduled-scaling.zip).
+2. Create CloudFormation stack.
+    - To create horizontal scaling stack, click  [here](https://automation-assets-avaya.s3.ap-south-1.amazonaws.com/cftemplates/rds-scheduled-horizontal-scaling.template.json).
+    - To create vertical scaling stack, click [here](https://automation-assets-avaya.s3.ap-south-1.amazonaws.com/cftemplates/rds-scheduled-vertical-scaling.template.json).
+3. Fill out parameters value. List of [parameters](#stack-parameters) for each stacks.
 
 ## Stack Parameters
 Prameters required for stack creation.
 | Parameter Name | Description | Default | Remarks |
 | ----------- | ----------- | ----------- | ----------- |
-| BucketName |	Bucket where "rds-scheduled-scaling.zip" file is uploaded.  |  | Applicable on if installing with CDK. |
-| KeyName | S3 Key name of the file "rds-scheduled-scaling.zip". | rds-scheduled-scaling.zip | Applicable on if installing with CDK. |
+| BucketName |	Bucket where "rds-scheduled-scaling.zip" file is uploaded.  |  | Applicable only if installing with CDK. |
+| KeyName | S3 Key name of the file "rds-scheduled-scaling.zip". | rds-scheduled-scaling.zip | Applicable only if installing with CDK. |
 | EnableNotification | Publish scaling summary to NotificationTopicArn. [yes, no] | no |  |
 | NotificationTopicArn | SNS topic arn to which notification will be published. | <sns-topic-arn> |  |
 | ScaleInTime | Time at which scale-in of read replicas will take place. |  | Applicable for rds-scheduled-horizontal-scaling |
 | ScaleOutTime | Time at which scale-out of read replicas will take place. |  | Applicable for rds-scheduled-horizontal-scaling |
 | ScaleDownTime | Time at which rds instance scales-down. |  | Applicable for rds-scheduled-vertical-scaling |
 | ScaleUpTime | Time at which rds instance scales-up. |  | Applicable for rds-scheduled-vertical-scaling |
+
+**Note -** 
+- Every type of RDS instances have different constraints on number of replicas that can be created, rds instnace class allowd. So make sure a rds can be scaled to a particular instance class and replica count before creating rds scaling tags.
+- Scale time parameters like `ScaleInTime`, `ScaleOutTime` etc should be in UTC timezone in the format `minute hour` and there should be no leading zero in `minute` or `hour` e.g. `14:05 UTC` will be filled out as `5 14`.
+- This solution is not made to work on RDS Aurora.
+- Whenever either horizontal or vertical scaling is triggered, the database enters `modifying` state and it takes around 15 minutes before it comes back to `available` state. During this period no further modification can be made to database. It is recommended  that if you are creating both rds-scheduled-horizontal-scaling and rds-scheduled-vertical-scaling stack then there should be atleast 15 minutes gap between `ScaleUpTime` and `ScaleOutTime` otherwise if both scaling are triggered at same one of them will make the changes to database sending it to `modifying` state and other scaling will skip over it because it is not in `available` state.
+
+
+
